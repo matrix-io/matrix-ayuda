@@ -1,0 +1,21 @@
+{
+  "name": "ayuda",
+  "version": "0.0.1",
+  "description": "Made to integrate MATRIX OS with Ayuda",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/pop.test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie": "^0.3.1",
+    "cookie-parser": "^1.4.3",
+    "cookies": "^0.7.0",
+    "jsdom": "^11.1.0",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "request": "^2.81.0",
+    "rx": "^4.1.0"
+  }
+}
