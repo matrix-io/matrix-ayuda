@@ -25,7 +25,7 @@ class Ayuda {
     USERNAME = auth.username;
     PASSWORD = auth.password;
     SESSION_ID = '';
-    AUTHORIZATION = new Buffer(USERNAME + ':' + PASSWORD).toString('base64');
+    AUTHORIZATION = 'Basic ' + new Buffer(USERNAME + ':' + PASSWORD).toString('base64');
   }
 
   /**
@@ -44,13 +44,20 @@ class Ayuda {
       if (err) return cb(err);
       else if (!response || !response.body) return cb(new Error('No response, Login failure'));
 
-      try {
-        SESSION_ID = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through                
-      } catch (error) {
-        err = error;
-      }
+      if (response.statusCode !== 200) {
+        var errMsg = response.statusMessage ? response.statusMessage : 'Unknown status message';
+        
+        return cb(new Error('(' + response.statusCode + ') ' + errMsg));
+      } else {
 
-      return cb(err, SESSION_ID);
+        try {
+          SESSION_ID = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through                
+        } catch (error) {
+          err = error;
+        }
+
+        return cb(err, SESSION_ID);
+      }
     });
   }
 
