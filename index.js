@@ -9,34 +9,33 @@ const request = require('request').defaults({ jar: true });
 const _ = require('lodash');
 const moment = require('moment');
 
-
-// ENV VARIABLES
-let APIHOST;
-let SESSION_ID;
-let USERNAME;
-let PASSWORD;
-let AUTHORIZATION
+let apiHost;
+let sessionId;
+let username;
+let password;
+let authorization;
+let digitalFaceCode;
 
 class Ayuda {
 
   // Login required for Ayuda's API
   constructor(auth) {
-    APIHOST = auth.apiUrl;
-    USERNAME = auth.username;
-    PASSWORD = auth.password;
-    SESSION_ID = '';
-    AUTHORIZATION = new Buffer(USERNAME + ':' + PASSWORD).toString('base64');
+    apiHost = auth.apiUrl;
+    username = auth.username;
+    password = auth.password;
+    sessionId = '';
+    authorization = new Buffer(username + ':' + password).toString('base64');
   }
 
   /**
    * Sends a POST request to Ayudas login service using
    * 'env.username' and 'env.password' passed in to the constructor
-   * @return {cb} Containing 'SESSION_ID'
+   * @return {cb} Containing 'sessionId'
    */
   login(cb) {
 
     const extraOpts = {
-      formData: { username: USERNAME, password: PASSWORD },
+      formData: { username: username, password: password },
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
 
@@ -45,13 +44,13 @@ class Ayuda {
       else if (!response || !response.body) return cb(new Error('No response, Login failure'));
 
       try {
-        SESSION_ID = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through                
+        sessionId = JSON.parse(response.body).sessionID; //Store sessionId within module and pass through                
       } catch (error) {
         err = error;
       }
 
-      return cb(err, SESSION_ID);
-    });
+      return cb(err, sessionId);
+    }); 
   }
 
   /**
@@ -61,13 +60,14 @@ class Ayuda {
    * @param {Date} end
    * @param {function} cb with an array of Objects containing PoP data
    */
-  getDigitalPlayLogs(startDate, endDate, cb) {
+  getDigitalPlayLogs(dayDate, cb) {
 
-    if (SESSION_ID === '') return cb(new Error('No Session ID -> Please login first'));
-    else if (!(startDate instanceof Date) || !(endDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
+    if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
+    else if (!(dayDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
 
-    const start = moment.utc(startDate).startOf('day');
-    const end = moment.utc(endDate);
+    const start = moment.utc(dayDate).startOf('day');
+    var end = moment(start.toDate());
+    end.add(1, 'day');
 
     const extraOpts = {
       formData: {
@@ -76,6 +76,8 @@ class Ayuda {
       },
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
+
+    if (digitalFaceCode && digitalFaceCode !== '') extraOpts.formData.digitalFaceCodes = digitalFaceCode;
 
     this.makeRequest('POST', 'Player/GetDigitalPlayLogs', extraOpts, (err, response) => {
       var body;
@@ -105,12 +107,12 @@ class Ayuda {
    */
   makeRequest(method, route, extraOpts, cb) {
     if (route[0] !== '/') route = '/' + route;
-    const url = APIHOST + route;
+    const url = apiHost + route;
 
     const defaults = {
       method: method,
       url: url,
-      headers: { authorization: AUTHORIZATION }
+      headers: { authorization: authorization }
     };
 
     const options = _.merge(defaults, extraOpts);
@@ -119,31 +121,8 @@ class Ayuda {
     request(options, cb);
   } // makeRequest
 
-  /**
-   *  Takes in a PoP response from Ayuda's service and flattens it by time of play
-   *  // [ { [ ... {} ] } , ...] => [ [ {} ... ], [ {} ... ] ]
-   *
-   * @param  {Object} playLog - Deeply nested JSON response from Ayuda's API (getDigitalPlayLogs)
-   * @param {function} cb err, Represents a list of sorted (chronologically) Ad / Time objects. The time is in unix time
-   */
-  flattenPlayLog(playLog, cb) {
-
-    const adTimeArrays = _.map(playLog, pop =>
-      _.flatMap(pop.Times, time => {
-
-        const adTimePair = {
-          name: pop.MediaFileName,
-          time: (+new Date(time.DateTime) / 1000).toFixed(0)
-        };
-
-        return adTimePair;
-      })
-    );
-
-    const flattened = _.flattenDeep(adTimeArrays); // [[],[],[]] => []
-    const sorted = flattened.sort((prev, curr) => prev.time - curr.time); // Sort by time : early to now
-
-    return cb(undefined, sorted);
+  setPlayer(newDigitalFaceCode) {
+    digitalFaceCode = newDigitalFaceCode;
   }
 
 } // class : Ayuda
