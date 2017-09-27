@@ -15,6 +15,7 @@ let username;
 let password;
 let authorization;
 let digitalFaceCode;
+let playerId;
 
 class Ayuda {
 
@@ -92,9 +93,7 @@ class Ayuda {
       if (!response || !response.body) return cb(new Error('No response to parses'));
         
       try {
-
         body = JSON.parse(response.body); 
-
       } catch (error) {
         err = error;
       }
@@ -130,9 +129,14 @@ class Ayuda {
     request(options, cb);
   } // makeRequest
 
-  setPlayer(newDigitalFaceCode) {
+  setPlayerId(newplayerId) {
+    playerId = newplayerId;
+  }
+
+  setDigitalFaceCode(newDigitalFaceCode) { 
     digitalFaceCode = newDigitalFaceCode;
   }
+
   /**
    *  Takes in a PoP response from Ayuda's service and flattens it by time of play
    *
@@ -140,20 +144,20 @@ class Ayuda {
    * @return {Array.<Object>} - Represents a list of sorted (chronologically) Ad / Time objects. The time is in unix time
    */
 
-  flattenPlayLog(playLog){
+  flattenPlayLog(playLog) {
 
     // [ { [ ... {} ] } , ...] => [ [ {} ... ], [ {} ... ] ]
-    const adTimeArrays = _.map( playLog , pop =>
+    const adTimeArrays = _.map(playLog, pop =>
 
-        _.flatMap( pop.Times , time => {
+      _.flatMap(pop.Times, time => {
 
-          const adTimePair = {
-            name : pop.MediaFileName,
-            time : (+new Date(time.DateTime)/1000).toFixed(0)
-          };
+        const adTimePair = {
+          name: pop.MediaFileName,
+          time: (+new Date(time.DateTime) / 1000).toFixed(0)
+        };
 
-          return adTimePair
-        })
+        return adTimePair
+      })
     );
 
     // [[],[],[]] => []
@@ -166,6 +170,41 @@ class Ayuda {
 
   }
 
-} // class : Ayuda
+  getTimeZone(cb) {
 
+    if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
+    else if (!playerId) return cb(new Error('No device specified'));
+
+    const extraOpts = {
+      formData: {
+        'id': playerId
+      },
+      headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
+    };
+
+    this.makeRequest('POST', 'Player/Get', extraOpts, (err, response) => {
+      var body;
+      if (err) return cb(err);
+      if (!response || !response.body) return cb(new Error('No response to parses'));
+
+      try {
+        body = JSON.parse(response.body);
+      } catch (error) {
+        err = error;
+      }
+
+      if (err) return cb(err);
+      if (body.Success === false) return cb(new Error('From Ayuda : ' + body.Error)); // Error comes from Ayuda's API
+      
+      if (body && body.PlayerState && body.PlayerState.LastTimeZoneOffsetInMinutes) body = body.PlayerState.LastTimeZoneOffsetInMinutes;
+      else { 
+        body = undefined;
+        err = new Error('Unable to fetch LastTimeZoneOffsetInMinutes');
+      }
+
+      return cb(err, body)
+    });
+  }
+
+} // class : Ayuda
 module.exports = Ayuda;
