@@ -1,5 +1,5 @@
 const Ayuda = require('../index.js');
-const testEnv = require('./test.env.js');
+//const testEnv = require('./test.env.js');
 
 
 let ayuda = new Ayuda(testEnv);
@@ -28,3 +28,14 @@ ayuda.login((err, sessionID)=> {
     })
 
 });
+
+////
+///**
+// * Ayuda uses Basic Auth
+// */
+//
+//// if you see this on the github repo shoot Jorge
+//username: process.env.AY_API_USER || 'colin',
+//    password: process.env.AY_API_PASSWORD || 'Setsuko13',
+//    apiUrl    : process.env.AY_API_URL   || 'https://pv.ayudapreview.com/Juice/pi',
+//    digitalFaceCode: ''
