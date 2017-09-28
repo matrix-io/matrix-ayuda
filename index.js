@@ -162,7 +162,7 @@ class Ayuda {
     /* Sort by time : early to now*/
     const sorted = flattened.sort((prev, curr) => prev.time - curr.time);
 
-    return Promise.resolve(sorted);
+    return sorted;
 
   }
 
