@@ -17,7 +17,7 @@ describe('Ayuda', function() {
 
         userInfo = {
             username: process.env.AY_API_USER || 'test',
-            password: process.env.AY_API_PASSWORD || 'testpass',
+            password: process.env.AY_API_PASSWORD || 'testPass',
             apiUrl: process.env.AY_API_URL || 'https://pv.ayudapreview.com/Juice/pi'
         };
 
@@ -50,6 +50,7 @@ describe('Ayuda', function() {
                 .reply(302, 'found');
 
             ayuda.makeRequest('GET', '/', {}, function (error, response, body) {
+
                 expect(error).to.not.be.undefined;
                 done();
             });
@@ -61,7 +62,7 @@ describe('Ayuda', function() {
 
     describe('#login()', function() {
 
-        it('login successfully and return sessionID ', function(done) {
+        it.only('login successfully and return sessionID ', function(done) {
 
             let fakeAyudaLogin = nock(userInfo.apiUrl)
                 .post('/Session/Login')
@@ -223,23 +224,51 @@ describe('Ayuda', function() {
 
     });
 
-    describe('#getTimeZone()',function(){
-
-        it('should get timezone data from player');
-
-    });
 
     describe('#setPlayer()', function(){
 
-        it('should set player id in object');
+        it.only('should set player id in object', function(done){
+
+            ayuda.setPlayerId('f75c62da-4086-4e4a-9dc5-e0e8c56ca69a');
+            done();
+        });
 
     });
 
     describe('#setDigitalFaceCode()', function(){
 
-        it('should set digitalfacecode');
+        it('should set digitalfacecode', function(done){
+
+            ayuda.setDigitalFaceCode('');
+            done();
+
+        });
 
     });
+
+    describe('#getTimeZone()',function(){
+        it.only('should get timezone data from player', function(done){
+
+            let fakeAyudaLogin = nock(userInfo.apiUrl)
+                .post('/Player/Get')
+                .reply(200, {
+
+                    Success : true,
+                    PlayerState : {
+                        LastTimeZoneOffsetInMinutes : -420
+                    }
+
+                });
+
+            ayuda.getTimeZone(function(err, body){
+                if(err) throw err;
+                console.log(body);
+                done();
+            });
+
+        });
+    });
+
 });
 
 
