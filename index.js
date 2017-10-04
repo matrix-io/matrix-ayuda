@@ -4,10 +4,13 @@
  * - Automatically stores and sends cookies with each request
  */
 
+let testing_mode = false;
+
 // NOTE: { jar : true } stores cookies
 const request = require('request').defaults({ jar: true });
 const _ = require('lodash');
 const moment = require('moment');
+const nock = require('nock');
 
 let apiHost;
 let sessionId;
@@ -35,12 +38,13 @@ class Ayuda {
    */
   login(cb) {
 
+
     const extraOpts = {
       formData: { username: username, password: password },
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
 
-    this.makeRequest('POST', 'Session/Login', extraOpts, (err, response) => {
+    this.makeRequest('POST', '/Session/Login', extraOpts, (err, response) => {
       if (err) return cb(err);
       else if (!response || !response.body) return cb(new Error('No response, Login failure'));
 
@@ -114,6 +118,12 @@ class Ayuda {
    * @return {Promise.<object, Error>} - Resolves with a a response
    */
   makeRequest(method, route, extraOpts, cb) {
+
+    // intercept requests
+    if(testing_mode) {
+      mock(method, route);
+    }
+
     if (route[0] !== '/') route = '/' + route;
     const url = apiHost + route;
 
@@ -126,6 +136,7 @@ class Ayuda {
     const options = _.merge(defaults, extraOpts);
     //console.log(`Sending request with the following options : ${JSON.stringify(options)}`);
 
+    console.log('Sending request to ' + url);
     request(options, cb);
   } // makeRequest
 
@@ -182,7 +193,7 @@ class Ayuda {
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
 
-    this.makeRequest('POST', 'Player/Get', extraOpts, (err, response) => {
+    this.makeRequest('POST', '/Player/Get', extraOpts, (err, response) => {
       var body;
       if (err) return cb(err);
       if (!response || !response.body) return cb(new Error('No response to parses'));
@@ -206,5 +217,67 @@ class Ayuda {
     });
   }
 
+  setTestMode(bool){
+    if(typeof bool == 'boolean')
+        testing_mode = bool;
+  }
+
 } // class : Ayuda
 module.exports = Ayuda;
+
+// util func mock, intercepts requests and responds with appropriate response
+function mock(method, route, code = 200){
+  let reply = {};
+
+  switch(route){
+      case '/Session/Login':
+        reply = {
+          sessionID : '8a3feb73-a869-4e99-8d0e-ca8b33590726'
+        };
+        break;
+
+      case '/Player/GetDigitalPlayLogs':
+          reply = [
+
+              {
+                  MediaFileName: "foo",
+                  Times: [
+                      {"DateTime": "2017-08-04T00:00:01"},
+                      {"DateTime": "2017-08-04T00:00:04"},
+                      {"DateTime": "2017-08-04T00:00:07"}
+                  ],
+              },
+              {
+                  MediaFileName: "bar",
+                  Times: [
+                      {"DateTime": "2017-08-04T00:00:02"},
+                      {"DateTime": "2017-08-04T00:00:05"},
+                      {"DateTime": "2017-08-04T00:00:08"}
+                  ],
+              },
+              {
+                  MediaFileName: "baz",
+                  Times: [
+                      {"DateTime": "2017-08-04T00:00:03"},
+                      {"DateTime": "2017-08-04T00:00:06"},
+                      {"DateTime": "2017-08-04T00:00:09"}
+                  ]
+              },
+          ];
+        break;
+
+      case '/Player/Get':
+          console.log("TIMEZONE");
+          reply = {
+              Success : true,
+              PlayerState : {
+                  LastTimeZoneOffsetInMinutes : -420
+              }
+          };
+          break;
+
+      default:
+          reply = "not implemented yet";
+  }
+  return nock(apiHost).intercept(route, method).reply(200, reply);
+};
