@@ -91,7 +91,7 @@ class Ayuda {
 
     if (digitalFaceCode && digitalFaceCode !== '') extraOpts.formData.digitalFaceCodes = digitalFaceCode;
 
-    this.makeRequest('POST', 'Player/GetDigitalPlayLogs', extraOpts, (err, response) => {
+    this.makeRequest('POST', '/Player/GetDigitalPlayLogs', extraOpts, (err, response) => {
       var body;
       if (err) return cb(err);
       if (!response || !response.body) return cb(new Error('No response to parses'));
@@ -119,7 +119,7 @@ class Ayuda {
    */
   makeRequest(method, route, extraOpts, cb) {
 
-    // intercept requests
+    // intercept request
     if(testing_mode) {
       mock(method, route);
     }
@@ -136,7 +136,6 @@ class Ayuda {
     const options = _.merge(defaults, extraOpts);
     //console.log(`Sending request with the following options : ${JSON.stringify(options)}`);
 
-    console.log('Sending request to ' + url);
     request(options, cb);
   } // makeRequest
 
@@ -267,7 +266,6 @@ function mock(method, route, code = 200){
         break;
 
       case '/Player/Get':
-          console.log("TIMEZONE");
           reply = {
               Success : true,
               PlayerState : {
