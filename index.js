@@ -54,6 +54,8 @@ class Ayuda {
         return cb(new Error('(' + response.statusCode + ') ' + errMsg));
       } else {
 
+        console.log('LOGGINGING');
+
         try {
           sessionId = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through
         } catch (error) {
@@ -176,7 +178,7 @@ class Ayuda {
     /* Sort by time : early to now*/
     const sorted = flattened.sort((prev, curr) => prev.time - curr.time);
 
-    return Promise.resolve(sorted);
+    return sorted;
 
   }
 
@@ -223,59 +225,5 @@ class Ayuda {
 
 } // class : Ayuda
 module.exports = Ayuda;
+module.exports.Mock = require('./lib').mock;
 
-// util func mock, intercepts requests and responds with appropriate response
-function mock(method, route, code = 200){
-  let reply = {};
-
-  switch(route){
-      case '/Session/Login':
-        reply = {
-          sessionID : '8a3feb73-a869-4e99-8d0e-ca8b33590726'
-        };
-        break;
-
-      case '/Player/GetDigitalPlayLogs':
-          reply = [
-
-              {
-                  MediaFileName: "foo",
-                  Times: [
-                      {"DateTime": "2017-08-04T00:00:01"},
-                      {"DateTime": "2017-08-04T00:00:04"},
-                      {"DateTime": "2017-08-04T00:00:07"}
-                  ],
-              },
-              {
-                  MediaFileName: "bar",
-                  Times: [
-                      {"DateTime": "2017-08-04T00:00:02"},
-                      {"DateTime": "2017-08-04T00:00:05"},
-                      {"DateTime": "2017-08-04T00:00:08"}
-                  ],
-              },
-              {
-                  MediaFileName: "baz",
-                  Times: [
-                      {"DateTime": "2017-08-04T00:00:03"},
-                      {"DateTime": "2017-08-04T00:00:06"},
-                      {"DateTime": "2017-08-04T00:00:09"}
-                  ]
-              },
-          ];
-        break;
-
-      case '/Player/Get':
-          reply = {
-              Success : true,
-              PlayerState : {
-                  LastTimeZoneOffsetInMinutes : -420
-              }
-          };
-          break;
-
-      default:
-          reply = "not implemented yet";
-  }
-  return nock(apiHost).intercept(route, method).reply(200, reply);
-};
