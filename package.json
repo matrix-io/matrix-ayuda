@@ -9,9 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "casual": "^1.5.17",
+    "colors": "^1.1.2",
     "cookie": "^0.3.1",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
+    "moment-timezone": "^0.5.13",
     "nock": "^9.0.22",
     "request": "^2.83.0"
   },
