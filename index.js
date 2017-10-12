@@ -1,3 +1,5 @@
+//TODO: Change flatten to return 'time' in ISO
+
 /**
  * This module simplifies requests made to Ayudas API service.
  * - Handles Basic auth
@@ -57,12 +59,15 @@ class Ayuda {
         console.log('LOGGINGING');
 
         try {
+
           sessionId = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through
         } catch (error) {
           err = error;
         }
 
+
         return cb(err, sessionId);
+
       }
     });
   }

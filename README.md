@@ -24,4 +24,3 @@ Each PoP response received from Ayuda's server's returns an array of objects in 
 |    `PlayToEnd`    |     boolean    |                         Was the creative set to play to its conclusion (if longer than the spot length)                     | `false`                                       |
 |  `DesignDuration` |     number     |                 The native play time of the of the creative (could be longer or shorter than the spot length)               | `0`                                           |
 |      `Times`      | array<objects> |          Array containing objects with a single key `"Datetime"`, holds a ISO 8601 string with the local player time        | `[{"DateTime" : "2017-08-04T00:00:23"}, ...]` |
-sdf
