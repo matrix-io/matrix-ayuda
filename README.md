@@ -1,7 +1,6 @@
 # Ayuda API
 
-Ayuda requires a POST request to be sent in order to retreive the play logs for a specific day.
-This poses a challenge for realtime collection of data asthe Ayuda team discourages from continuously polling data in subintervals of time from their servers.
+This module is a collecton of wrappers, helper functions and stubs that facilitate integrations with the Ayuda API.
 
 ## Setup
 
@@ -25,3 +24,4 @@ Each PoP response received from Ayuda's server's returns an array of objects in 
 |    `PlayToEnd`    |     boolean    |                         Was the creative set to play to its conclusion (if longer than the spot length)                     | `false`                                       |
 |  `DesignDuration` |     number     |                 The native play time of the of the creative (could be longer or shorter than the spot length)               | `0`                                           |
 |      `Times`      | array<objects> |          Array containing objects with a single key `"Datetime"`, holds a ISO 8601 string with the local player time        | `[{"DateTime" : "2017-08-04T00:00:23"}, ...]` |
+sdf
