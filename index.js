@@ -127,9 +127,9 @@ class Ayuda {
   makeRequest(method, route, extraOpts, cb) {
 
     // intercept request
-    if(testing_mode) {
-      mock(method, route);
-    }
+    // if(testing_mode) {
+    //   mock(method, route);
+    // }
 
     if (route[0] !== '/') route = '/' + route;
     const url = apiHost + route;
