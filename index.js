@@ -6,13 +6,11 @@
  * - Automatically stores and sends cookies with each request
  */
 
-let testing_mode = false;
 
 // NOTE: { jar : true } stores cookies
 const request = require('request').defaults({ jar: true });
 const _ = require('lodash');
 const moment = require('moment');
-const nock = require('nock');
 
 let apiHost;
 let sessionId;
@@ -125,11 +123,6 @@ class Ayuda {
    * @return {Promise.<object, Error>} - Resolves with a a response
    */
   makeRequest(method, route, extraOpts, cb) {
-
-    // intercept request
-    // if(testing_mode) {
-    //   mock(method, route);
-    // }
 
     if (route[0] !== '/') route = '/' + route;
     const url = apiHost + route;
