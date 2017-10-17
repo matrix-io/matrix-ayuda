@@ -54,13 +54,14 @@ class Ayuda {
         return cb(new Error('(' + response.statusCode + ') ' + errMsg));
       } else {
 
-        console.log('LOGGINGING');
-
         try {
 
           sessionId = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through
+
         } catch (error) {
+
           err = error;
+
         }
 
 
@@ -79,8 +80,8 @@ class Ayuda {
    */
   getDigitalPlayLogs(dayDate, cb) {
 
-    if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
-    else if (!(dayDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
+    // if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
+    // else if (!(dayDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
 
     const start = moment.utc(dayDate).startOf('day');
     var end = moment(start.toDate());
@@ -88,8 +89,8 @@ class Ayuda {
 
     const extraOpts = {
       formData: {
-        'start': start.toISOString(),
-        'end': end.toISOString()
+        start: start.toISOString(),
+        end: end.toISOString()
       },
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
@@ -97,14 +98,19 @@ class Ayuda {
     if (digitalFaceCode && digitalFaceCode !== '') extraOpts.formData.digitalFaceCodes = digitalFaceCode;
 
     this.makeRequest('POST', '/Player/GetDigitalPlayLogs', extraOpts, (err, response) => {
+
       var body;
       if (err) return cb(err);
       if (!response || !response.body) return cb(new Error('No response to parses'));
         
       try {
-        body = JSON.parse(response.body); 
+
+        body = JSON.parse(response.body);
+
       } catch (error) {
+
         err = error;
+
       }
       
       if (err) return cb(err);
@@ -182,8 +188,8 @@ class Ayuda {
 
   getTimeZone(cb) {
 
-    if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
-    else if (!playerId) return cb(new Error('No device specified'));
+    // if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
+    if (!playerId) return cb(new Error('No device specified'));
 
     const extraOpts = {
       formData: {
