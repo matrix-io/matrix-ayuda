@@ -53,7 +53,7 @@ describe('Ayuda', function() {
     describe('#getDigitalPlayLogs', function(){
 
         this.timeout(0);
-        it.only('should obtain PoPs for the day', function( done ){
+        it('should obtain PoPs for the day', function( done ){
 
             testAccount.getDigitalPlayLogs(new Date(), function( err, logs ){
 

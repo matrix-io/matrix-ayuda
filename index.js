@@ -211,8 +211,9 @@ class Ayuda {
 
       if (err) return cb(err);
       if (body.Success === false) return cb(new Error('From Ayuda : ' + body.Error)); // Error comes from Ayuda's API
-      
-      if (body && body.PlayerState && body.PlayerState.LastTimeZoneOffsetInMinutes) body = body.PlayerState.LastTimeZoneOffsetInMinutes;
+
+        // if timeZoneOffsete is 0 (when testing) it is falsey
+      if (body && body.PlayerState ) body = body.PlayerState.LastTimeZoneOffsetInMinutes;
       else { 
         body = undefined;
         err = new Error('Unable to fetch LastTimeZoneOffsetInMinutes');
