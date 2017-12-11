@@ -1,7 +1,6 @@
 # Ayuda API
 
-Ayuda requires a POST request to be sent in order to retreive the play logs for a specific day.
-This poses a challenge for realtime collection of data asthe Ayuda team discourages from continuously polling data in subintervals of time from their servers.
+This module is a collecton of wrappers, helper functions and stubs that facilitate integrations with the Ayuda API.
 
 ## Setup
 

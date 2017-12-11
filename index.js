@@ -4,6 +4,7 @@
  * - Automatically stores and sends cookies with each request
  */
 
+
 // NOTE: { jar : true } stores cookies
 const request = require('request').defaults({ jar: true });
 const _ = require('lodash');
@@ -35,12 +36,13 @@ class Ayuda {
    */
   login(cb) {
 
+
     const extraOpts = {
       formData: { username: username, password: password },
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
 
-    this.makeRequest('POST', 'Session/Login', extraOpts, (err, response) => {
+    this.makeRequest('POST', '/Session/Login', extraOpts, (err, response) => {
       if (err) return cb(err);
       else if (!response || !response.body) return cb(new Error('No response, Login failure'));
 
@@ -51,12 +53,18 @@ class Ayuda {
       } else {
 
         try {
+
           sessionId = JSON.parse(response.body).sessionID; //Store SESSION_ID within module and pass through
+
         } catch (error) {
+
           err = error;
+
         }
 
+
         return cb(err, sessionId);
+
       }
     });
   }
@@ -70,8 +78,8 @@ class Ayuda {
    */
   getDigitalPlayLogs(dayDate, cb) {
 
-    if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
-    else if (!(dayDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
+    // if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
+    // else if (!(dayDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
 
     const start = moment.utc(dayDate).startOf('day');
     var end = moment(start.toDate());
@@ -79,23 +87,28 @@ class Ayuda {
 
     const extraOpts = {
       formData: {
-        'start': start.toISOString(),
-        'end': end.toISOString()
+        start: start.toISOString(),
+        end: end.toISOString()
       },
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
 
     if (digitalFaceCode && digitalFaceCode !== '') extraOpts.formData.digitalFaceCodes = digitalFaceCode;
 
-    this.makeRequest('POST', 'Player/GetDigitalPlayLogs', extraOpts, (err, response) => {
+    this.makeRequest('POST', '/Player/GetDigitalPlayLogs', extraOpts, (err, response) => {
+
       var body;
       if (err) return cb(err);
       if (!response || !response.body) return cb(new Error('No response to parses'));
         
       try {
-        body = JSON.parse(response.body); 
+
+        body = JSON.parse(response.body);
+
       } catch (error) {
+
         err = error;
+
       }
       
       if (err) return cb(err);
@@ -114,6 +127,7 @@ class Ayuda {
    * @return {Promise.<object, Error>} - Resolves with a a response
    */
   makeRequest(method, route, extraOpts, cb) {
+
     if (route[0] !== '/') route = '/' + route;
     const url = apiHost + route;
 
@@ -137,43 +151,10 @@ class Ayuda {
     digitalFaceCode = newDigitalFaceCode;
   }
 
-  /**
-   *  Takes in a PoP response from Ayuda's service and flattens it by time of play
-   *
-   * @param  {Object} playLog - Deeply nested JSON response from Ayuda's API (getDigitalPlayLogs)
-   * @return {Array.<Object>} - Represents a list of sorted (chronologically) Ad / Time objects. The time is in unix time
-   */
-
-  flattenPlayLog(playLog) {
-
-    // [ { [ ... {} ] } , ...] => [ [ {} ... ], [ {} ... ] ]
-    const adTimeArrays = _.map(playLog, pop =>
-
-      _.flatMap(pop.Times, time => {
-
-        const adTimePair = {
-          name: pop.MediaFileName,
-          time: (+new Date(time.DateTime) / 1000).toFixed(0)
-        };
-
-        return adTimePair
-      })
-    );
-
-    // [[],[],[]] => []
-    const flattened = _.flattenDeep(adTimeArrays);
-
-    /* Sort by time : early to now*/
-    const sorted = flattened.sort((prev, curr) => prev.time - curr.time);
-
-    return Promise.resolve(sorted);
-
-  }
-
   getTimeZone(cb) {
 
-    if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
-    else if (!playerId) return cb(new Error('No device specified'));
+    // if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
+    if (!playerId) return cb(new Error('No device specified'));
 
     const extraOpts = {
       formData: {
@@ -182,7 +163,7 @@ class Ayuda {
       headers: { 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' }
     };
 
-    this.makeRequest('POST', 'Player/Get', extraOpts, (err, response) => {
+    this.makeRequest('POST', '/Player/Get', extraOpts, (err, response) => {
       var body;
       if (err) return cb(err);
       if (!response || !response.body) return cb(new Error('No response to parses'));
@@ -195,8 +176,9 @@ class Ayuda {
 
       if (err) return cb(err);
       if (body.Success === false) return cb(new Error('From Ayuda : ' + body.Error)); // Error comes from Ayuda's API
-      
-      if (body && body.PlayerState && body.PlayerState.LastTimeZoneOffsetInMinutes) body = body.PlayerState.LastTimeZoneOffsetInMinutes;
+
+        // if timeZoneOffsete is 0 (when testing) it is falsey
+      if (body && body.PlayerState ) body = body.PlayerState.LastTimeZoneOffsetInMinutes;
       else { 
         body = undefined;
         err = new Error('Unable to fetch LastTimeZoneOffsetInMinutes');
@@ -208,3 +190,5 @@ class Ayuda {
 
 } // class : Ayuda
 module.exports = Ayuda;
+module.exports.Mock = require('./lib').mock;
+

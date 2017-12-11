@@ -9,10 +9,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "casual": "^1.5.17",
+    "colors": "^1.1.2",
     "cookie": "^0.3.1",
+    "faker": "^4.1.0",
+    "i": "^0.3.6",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "request": "^2.83.0"
+    "moment-timezone": "^0.5.13",
+    "nock": "^9.0.22",
+    "request": "^2.83.0",
+    "twix": "^1.2.1"
   },
   "devDependencies": {
     "mocha": "^3.5.3",

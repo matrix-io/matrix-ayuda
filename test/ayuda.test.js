@@ -62,7 +62,7 @@ describe('Ayuda', function() {
 
     describe('#login()', function() {
 
-        it.only('login successfully and return sessionID ', function(done) {
+        it('login successfully and return sessionID ', function(done) {
 
             let fakeAyudaLogin = nock(userInfo.apiUrl)
                 .post('/Session/Login')
@@ -78,6 +78,7 @@ describe('Ayuda', function() {
 
                 });
 
+            // ayuda.setTestMode(true);
             ayuda.login(function(err, sessionID) {
 
                 expect(sessionID).to.be.a('string');
@@ -182,43 +183,16 @@ describe('Ayuda', function() {
 
         before(function(){
 
-            dummyLogs = [
+            let start = moment(new Date());
+            let end = moment(new Date()).add(1, 'hour');
 
-                {
-                    MediaFileName: "foo",
-                    Times: [
-                        {"DateTime": "2017-08-04T00:00:01"},
-                        {"DateTime": "2017-08-04T00:00:04"},
-                        {"DateTime": "2017-08-04T00:00:07"}
-                    ],
-                },
-                {
-                    MediaFileName: "bar",
-                    Times: [
-                        {"DateTime": "2017-08-04T00:00:02"},
-                        {"DateTime": "2017-08-04T00:00:05"},
-                        {"DateTime": "2017-08-04T00:00:08"}
-                    ],
-                },
-                {
-                    MediaFileName: "baz",
-                    Times: [
-                        {"DateTime": "2017-08-04T00:00:03"},
-                        {"DateTime": "2017-08-04T00:00:06"},
-                        {"DateTime": "2017-08-04T00:00:09"}
-                    ]
-                },
-            ];
+            let Face = Ayuda.Mock.Face;
+            let campaign = new Face();
 
-        });
+            campaign.createAds( 3 );
+            campaign.generateLoop(start, end);
 
-        it('should flatten deeply nested logs into a single array',function(done){
-
-            // TODO: test for order
-            let result = ayuda.flattenPlayLog(dummyLogs);
-
-            expect(result).to.be.an('array');
-            done();
+            dummyLogs = campaign.getDigitalPlayLogs();
 
         });
 
@@ -227,7 +201,7 @@ describe('Ayuda', function() {
 
     describe('#setPlayer()', function(){
 
-        it.only('should set player id in object', function(done){
+        it('should set player id in object', function(done){
 
             ayuda.setPlayerId('f75c62da-4086-4e4a-9dc5-e0e8c56ca69a');
             done();
@@ -247,7 +221,7 @@ describe('Ayuda', function() {
     });
 
     describe('#getTimeZone()',function(){
-        it.only('should get timezone data from player', function(done){
+        it('should get timezone data from player', function(done){
 
             let fakeAyudaLogin = nock(userInfo.apiUrl)
                 .post('/Player/Get')
@@ -262,7 +236,6 @@ describe('Ayuda', function() {
 
             ayuda.getTimeZone(function(err, body){
                 if(err) throw err;
-                console.log(body);
                 done();
             });
 
