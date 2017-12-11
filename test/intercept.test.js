@@ -59,7 +59,7 @@ describe('Ayuda', function() {
 
                 if(err) console.log(err);
 
-                console.log( testAccount.flattenPlayLog( logs ) );
+                console.log( logs );
 
                 expect(logs, "play logs")
                     .to.be.an('array')
@@ -77,9 +77,11 @@ describe('Ayuda', function() {
         it('should get timezone data from player', function(done){
 
             testAccount.setPlayerId('whatever-this-is-a-test')
-            testAccount.getTimeZone(function(err, body){
+            testAccount.getTimeZone((err, body) => {
 
                 if(err) throw err;
+
+                console.log( body );
                 done();
 
             });

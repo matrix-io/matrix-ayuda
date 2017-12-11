@@ -64,21 +64,21 @@ describe('Ayuda', function() {
 
         it('login successfully and return sessionID ', function(done) {
 
-            // let fakeAyudaLogin = nock(userInfo.apiUrl)
-            //     .post('/Session/Login')
-            //     .basicAuth({
-            //
-            //         user: userInfo.username,
-            //         pass: userInfo.password
-            //
-            //     })
-            //     .reply(200, {
-            //
-            //         sessionID : '8a3feb73-a869-4e99-8d0e-ca8b33590726'
-            //
-            //     });
+            let fakeAyudaLogin = nock(userInfo.apiUrl)
+                .post('/Session/Login')
+                .basicAuth({
 
-            ayuda.setTestMode(true);
+                    user: userInfo.username,
+                    pass: userInfo.password
+
+                })
+                .reply(200, {
+
+                    sessionID : '8a3feb73-a869-4e99-8d0e-ca8b33590726'
+
+                });
+
+            // ayuda.setTestMode(true);
             ayuda.login(function(err, sessionID) {
 
                 expect(sessionID).to.be.a('string');
@@ -152,16 +152,16 @@ describe('Ayuda', function() {
 
         it('should obtain PoPs for the day', function(done){
 
-            // let fakeAyudaGetDigitalPlayLogs = nock(userInfo.apiUrl)
-            //
-            //     .post('/Player/GetDigitalPlayLogs')
-            //     .basicAuth({
-            //
-            //         user: userInfo.username,
-            //         pass: userInfo.password
-            //
-            //     })
-            //     .reply(200, dummyLogs);
+            let fakeAyudaGetDigitalPlayLogs = nock(userInfo.apiUrl)
+
+                .post('/Player/GetDigitalPlayLogs')
+                .basicAuth({
+
+                    user: userInfo.username,
+                    pass: userInfo.password
+
+                })
+                .reply(200, dummyLogs);
 
             ayuda.getDigitalPlayLogs(new Date(), function(err,logs){
 
@@ -183,43 +183,16 @@ describe('Ayuda', function() {
 
         before(function(){
 
-            dummyLogs = [
+            let start = moment(new Date());
+            let end = moment(new Date()).add(1, 'hour');
 
-                {
-                    MediaFileName: "foo",
-                    Times: [
-                        {"DateTime": "2017-08-04T00:00:01"},
-                        {"DateTime": "2017-08-04T00:00:04"},
-                        {"DateTime": "2017-08-04T00:00:07"}
-                    ],
-                },
-                {
-                    MediaFileName: "bar",
-                    Times: [
-                        {"DateTime": "2017-08-04T00:00:02"},
-                        {"DateTime": "2017-08-04T00:00:05"},
-                        {"DateTime": "2017-08-04T00:00:08"}
-                    ],
-                },
-                {
-                    MediaFileName: "baz",
-                    Times: [
-                        {"DateTime": "2017-08-04T00:00:03"},
-                        {"DateTime": "2017-08-04T00:00:06"},
-                        {"DateTime": "2017-08-04T00:00:09"}
-                    ]
-                },
-            ];
+            let Face = Ayuda.Mock.Face;
+            let campaign = new Face();
 
-        });
+            campaign.createAds( 3 );
+            campaign.generateLoop(start, end);
 
-        it('should flatten deeply nested logs into a single array',function(done){
-
-            // TODO: test for order
-            let result = ayuda.flattenPlayLog(dummyLogs);
-
-            expect(result).to.be.an('array');
-            done();
+            dummyLogs = campaign.getDigitalPlayLogs();
 
         });
 
@@ -250,16 +223,16 @@ describe('Ayuda', function() {
     describe('#getTimeZone()',function(){
         it('should get timezone data from player', function(done){
 
-            // let fakeAyudaLogin = nock(userInfo.apiUrl)
-            //     .post('/Player/Get')
-            //     .reply(200, {
-            //
-            //         Success : true,
-            //         PlayerState : {
-            //             LastTimeZoneOffsetInMinutes : -420
-            //         }
-            //
-            //     });
+            let fakeAyudaLogin = nock(userInfo.apiUrl)
+                .post('/Player/Get')
+                .reply(200, {
+
+                    Success : true,
+                    PlayerState : {
+                        LastTimeZoneOffsetInMinutes : -420
+                    }
+
+                });
 
             ayuda.getTimeZone(function(err, body){
                 if(err) throw err;

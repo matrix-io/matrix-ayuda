@@ -1,5 +1,3 @@
-//TODO: Change flatten to return 'time' in ISO
-
 /**
  * This module simplifies requests made to Ayudas API service.
  * - Handles Basic auth
@@ -153,39 +151,6 @@ class Ayuda {
     digitalFaceCode = newDigitalFaceCode;
   }
 
-  /**
-   *  Takes in a PoP response from Ayuda's service and flattens it by time of play
-   *
-   * @param  {Object} playLog - Deeply nested JSON response from Ayuda's API (getDigitalPlayLogs)
-   * @return {Array.<Object>} - Represents a list of sorted (chronologically) Ad / Time objects. The time is in unix time
-   */
-
-  flattenPlayLog(playLog) {
-
-    // [ { [ ... {} ] } , ...] => [ [ {} ... ], [ {} ... ] ]
-    const adTimeArrays = _.map(playLog, pop =>
-
-      _.flatMap(pop.Times, time => {
-
-        const adTimePair = {
-          name: pop.MediaFileName,
-          time: (+new Date(time.DateTime) / 1000).toFixed(0)
-        };
-
-        return adTimePair
-      })
-    );
-
-    // [[],[],[]] => []
-    const flattened = _.flattenDeep(adTimeArrays);
-
-    /* Sort by time : early to now*/
-    const sorted = flattened.sort((prev, curr) => prev.time - curr.time);
-
-    return sorted;
-
-  }
-
   getTimeZone(cb) {
 
     // if (sessionId === '') return cb(new Error('No Session ID -> Please login first'));
@@ -221,11 +186,6 @@ class Ayuda {
 
       return cb(err, body)
     });
-  }
-
-  setTestMode(bool){
-    if(typeof bool == 'boolean')
-        testing_mode = bool;
   }
 
 } // class : Ayuda
