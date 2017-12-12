@@ -9,6 +9,7 @@
 const request = require('request').defaults({ jar: true });
 const _ = require('lodash');
 const moment = require('moment');
+const url = require('url');
 
 let apiHost;
 let sessionId;
@@ -22,7 +23,19 @@ class Ayuda {
 
   // Login required for Ayuda's API
   constructor(auth) {
-    apiHost = auth.apiUrl;
+
+    const juicePath = '/Juice/pi';
+
+      if (url.parse(auth.apiUrl).pathname !== juicePath) {
+
+          apiHost = url.resolve(auth.apiUrl, juicePath);
+
+      } else {
+
+          apiHost = auth.apiUrl;
+
+      }
+
     username = auth.username;
     password = auth.password;
     sessionId = '';
@@ -82,7 +95,7 @@ class Ayuda {
     // else if (!(dayDate instanceof Date)) return cb(new Error('Needs to be a Date object'));
 
     const start = moment.utc(dayDate).startOf('day');
-    var end = moment(start.toDate());
+    const end = moment(start.toDate());
     end.add(1, 'day');
 
     const extraOpts = {
@@ -186,6 +199,10 @@ class Ayuda {
 
       return cb(err, body)
     });
+  }
+
+  getUrl(){
+    return apiHost;
   }
 
 } // class : Ayuda
