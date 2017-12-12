@@ -2,12 +2,6 @@ const Ayuda = require('../index.js');
 const expect = require('chai').expect;
 const nock = require('nock');
 
-/*
-    TODO: add switch that performs test on actual ayuda service
-    TODO: should makeRequest throw errors?
-    TODO: should we add mock functionality into the module itself? (could be useful for app testing)
- */
-
 describe('Ayuda', function() {
 
     let ayuda;
@@ -18,11 +12,34 @@ describe('Ayuda', function() {
         userInfo = {
             username: process.env.AY_API_USER || 'test',
             password: process.env.AY_API_PASSWORD || 'testPass',
-            apiUrl: process.env.AY_API_URL || 'https://pv.ayudapreview.com/Juice/pi'
+            apiUrl: process.env.AY_API_URL || 'https://test.ayudapreview.com/Juice/pi'
         };
 
         ayuda = new Ayuda(userInfo);
 
+    });
+
+    describe('#constructor', function(){
+
+        it('should handle complete urls', function(done){
+
+            const session = new Ayuda(userInfo);
+            expect(session.getUrl()).to.equal(userInfo.apiUrl);
+            done();
+        });
+
+        it('should handle incomplete urls', function(done){
+
+            const sameInfoIncompleteUrl = {
+                username: process.env.AY_API_USER || 'test',
+                password: process.env.AY_API_PASSWORD || 'testPass',
+                apiUrl: process.env.AY_API_URL || 'https://test.ayudapreview.com'
+            };
+
+            const session = new Ayuda(sameInfoIncompleteUrl);
+            expect(session.getUrl()).to.equal(userInfo.apiUrl);
+            done();
+        });
     });
 
     // makeRequest should handle errors and successful requests appropriately
@@ -176,53 +193,22 @@ describe('Ayuda', function() {
 
     });
 
-
-    describe('#flattenPlaylog()', function(){
-
-        let dummyLogs;
-
-        before(function(){
-
-            let start = moment(new Date());
-            let end = moment(new Date()).add(1, 'hour');
-
-            let Face = Ayuda.Mock.Face;
-            let campaign = new Face();
-
-            campaign.createAds( 3 );
-            campaign.generateLoop(start, end);
-
-            dummyLogs = campaign.getDigitalPlayLogs();
-
-        });
-
-    });
-
-
     describe('#setPlayer()', function(){
-
         it('should set player id in object', function(done){
-
             ayuda.setPlayerId('f75c62da-4086-4e4a-9dc5-e0e8c56ca69a');
             done();
         });
-
     });
 
     describe('#setDigitalFaceCode()', function(){
-
         it('should set digitalfacecode', function(done){
-
             ayuda.setDigitalFaceCode('');
             done();
-
         });
-
     });
 
     describe('#getTimeZone()',function(){
         it('should get timezone data from player', function(done){
-
             let fakeAyudaLogin = nock(userInfo.apiUrl)
                 .post('/Player/Get')
                 .reply(200, {
@@ -241,6 +227,7 @@ describe('Ayuda', function() {
 
         });
     });
+
 
 });
 
